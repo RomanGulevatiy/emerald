@@ -10,6 +10,7 @@ import me.romangulevatiy.emerald.exception.UsernameAlreadyExistsException;
 import me.romangulevatiy.emerald.mapper.AuthMapper;
 import me.romangulevatiy.emerald.repository.UserRepository;
 import me.romangulevatiy.emerald.service.AuthService;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ public class AuthServiceImpl implements AuthService {
 
         if(userRepository.existsByUsername(username)) {
             log.error("Username @{} already exists", username);
-            throw new UsernameAlreadyExistsException("Username @" + username + " already exists");
+            throw new UsernameAlreadyExistsException("Username already exists");
         }
 
         String encodedPassword = passwordEncoder.encode(authRequest.getPassword());
@@ -41,10 +42,22 @@ public class AuthServiceImpl implements AuthService {
         return authMapper.toAuthResponse(savedUser);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public AuthResponse login(AuthRequest authRequest) {
-        return null;
+        UserEntity user = userRepository.findByUsername(authRequest.getUsername())
+                .orElseThrow(() -> {
+                    log.warn("Username @{} not found", authRequest.getUsername());
+                    return new BadCredentialsException("Invalid username or password");
+                });
+
+        if(!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
+            log.error("Invalid password for user @{}", user.getUsername());
+            throw new BadCredentialsException("Invalid username or password");
+        }
+
+        log.info("User @{} logged in successfully", user.getUsername());
+        return authMapper.toAuthResponse(user);
     }
 
     @Transactional
