@@ -45,9 +45,11 @@ public class AuthServiceImpl implements AuthService {
     @Transactional(readOnly = true)
     @Override
     public AuthResponse login(AuthRequest authRequest) {
-        UserEntity user = userRepository.findByUsername(authRequest.getUsername())
+        String username = authRequest.getUsername();
+
+        UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
-                    log.warn("Username @{} not found", authRequest.getUsername());
+                    log.warn("Username @{} not found", username);
                     return new BadCredentialsException("Invalid username or password");
                 });
 
