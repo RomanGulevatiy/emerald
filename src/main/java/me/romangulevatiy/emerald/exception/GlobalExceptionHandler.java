@@ -1,6 +1,7 @@
 package me.romangulevatiy.emerald.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,6 +26,17 @@ public class GlobalExceptionHandler {
                 .error("Validation Failed")
                 .status(HttpStatus.BAD_REQUEST.value())
                 .message(message)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleBadCredentialsException() {
+        return ErrorResponse.builder()
+                .error("Invalid username or password")
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .message("Invalid username or password")
                 .timestamp(LocalDateTime.now())
                 .build();
     }
