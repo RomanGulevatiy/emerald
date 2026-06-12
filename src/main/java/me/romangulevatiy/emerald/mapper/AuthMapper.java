@@ -9,13 +9,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class AuthMapper {
 
-    public AuthResponse toAuthResponse(UserEntity user) {
-
-        // TODO: Implement the logic to generate access and refresh tokens
+    public AuthResponse toAuthResponse(String accessToken, String refreshToken, String username) {
         return AuthResponse.builder()
-                .accessToken(null)
-                .refreshToken(null)
-                .tokenType(null)
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .username(username)
                 .build();
     }
 
