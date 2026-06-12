@@ -1,5 +1,6 @@
 package me.romangulevatiy.emerald.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,7 +16,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
+    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
         String message = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
@@ -23,32 +24,36 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("; "));
 
         return ErrorResponse.builder()
-                .error("Validation Failed")
-                .status(HttpStatus.BAD_REQUEST.value())
-                .message(message)
                 .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Validation Failed")
+                .message(message)
+                .path(request.getRequestURI())
                 .build();
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleBadCredentialsException() {
+    public ErrorResponse handleBadCredentialsException(HttpServletRequest request) {
         return ErrorResponse.builder()
-                .error("Invalid username or password")
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .message("Invalid username or password")
                 .timestamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error("Invalid username or password")
+                .message("Invalid username or password")
+                .path(request.getRequestURI())
                 .build();
     }
 
     @ExceptionHandler(UsernameAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex) {
+    public ErrorResponse handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex,
+                                                              HttpServletRequest request) {
         return ErrorResponse.builder()
-                .error("Username already exists")
-                .status(HttpStatus.CONFLICT.value())
-                .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Username already exists")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
                 .build();
     }
 }
