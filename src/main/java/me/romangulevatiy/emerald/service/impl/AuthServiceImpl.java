@@ -9,11 +9,16 @@ import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.exception.UsernameAlreadyExistsException;
 import me.romangulevatiy.emerald.mapper.AuthMapper;
 import me.romangulevatiy.emerald.repository.UserRepository;
+import me.romangulevatiy.emerald.security.JwtService;
+import me.romangulevatiy.emerald.security.UserPrincipal;
 import me.romangulevatiy.emerald.service.AuthService;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,48 +28,72 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final AuthMapper authMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Transactional
     @Override
     public AuthResponse register(AuthRequest authRequest) {
-        String username = authRequest.getUsername();
+        String requestUsername = authRequest.getUsername();
 
-        if(userRepository.existsByUsername(username)) {
-            log.error("Username @{} already exists", username);
+        if(userRepository.existsByUsername(requestUsername)) {
+            log.error("Username @{} already exists", requestUsername);
             throw new UsernameAlreadyExistsException("Username already exists");
         }
 
         String encodedPassword = passwordEncoder.encode(authRequest.getPassword());
         UserEntity user = authMapper.toUserEntity(authRequest, encodedPassword);
-        UserEntity savedUser = userRepository.save(user);
 
-        log.info("Registering user @{}", savedUser.getUsername());
-        return authMapper.toAuthResponse(savedUser);
+        UserEntity savedUser = userRepository.save(user);
+        String savedUsername = savedUser.getUsername();
+        log.info("User {} registered successfully", savedUsername);
+
+        UserPrincipal userPrincipal = new UserPrincipal(savedUser);
+        Map<String,Object> extraClaims = createExtraClaims(savedUser);
+
+        String accessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
+        String refreshToken = jwtService.generateRefreshToken(userPrincipal);
+
+        return authMapper.toAuthResponse(accessToken, refreshToken, savedUsername);
     }
 
     @Transactional(readOnly = true)
     @Override
     public AuthResponse login(AuthRequest authRequest) {
-        String username = authRequest.getUsername();
+        String requestUsername = authRequest.getUsername();
 
-        UserEntity user = userRepository.findByUsername(username)
+        UserEntity user = userRepository.findByUsername(requestUsername)
                 .orElseThrow(() -> {
-                    log.warn("Username @{} not found", username);
+                    log.warn("Username @{} not found", requestUsername);
                     return new BadCredentialsException("Invalid username or password");
                 });
+        String username = user.getUsername();
 
         if(!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
-            log.error("Invalid password for user @{}", user.getUsername());
+            log.error("Invalid password for user @{}", username);
             throw new BadCredentialsException("Invalid username or password");
         }
 
-        log.info("User @{} logged in successfully", user.getUsername());
-        return authMapper.toAuthResponse(user);
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+        Map<String, Object> extraClaims = createExtraClaims(user);
+
+        String accessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
+        String refreshToken = jwtService.generateRefreshToken(userPrincipal);
+
+        log.info("User @{} logged in successfully", username);
+        return authMapper.toAuthResponse(accessToken, refreshToken, username);
     }
 
+    // TODO: Implement refresh token logic
     @Transactional
     @Override
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
         return null;
+    }
+
+    private Map<String, Object> createExtraClaims(UserEntity user) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", user.getId());
+        extraClaims.put("role", user.getRole().name());
+        return extraClaims;
     }
 }
