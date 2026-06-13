@@ -45,7 +45,7 @@ public class AuthServiceImpl implements AuthService {
 
         UserEntity savedUser = userRepository.save(user);
         String savedUsername = savedUser.getUsername();
-        log.info("User {} registered successfully", savedUsername);
+        log.info("User @{} registered successfully", savedUsername);
 
         UserPrincipal userPrincipal = new UserPrincipal(savedUser);
         Map<String,Object> extraClaims = createExtraClaims(savedUser);
