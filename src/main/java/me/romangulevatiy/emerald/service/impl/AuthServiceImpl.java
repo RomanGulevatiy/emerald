@@ -83,11 +83,38 @@ public class AuthServiceImpl implements AuthService {
         return authMapper.toAuthResponse(accessToken, refreshToken, username);
     }
 
-    // TODO: Implement refresh token logic
-    @Transactional
+    @Transactional(readOnly = true)
     @Override
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
-        return null;
+        String requestRefreshToken = refreshTokenRequest.getRefreshToken();
+        String username;
+
+        try {
+            username = jwtService.extractUsername(requestRefreshToken);
+        }
+        catch(BadCredentialsException e) {
+            log.warn("Failed to extract username from refresh token: {}", e.getMessage());
+            throw new BadCredentialsException("Invalid refresh token");
+        }
+
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> {
+                    log.warn("User @{} not found for refresh token", username);
+                    return new BadCredentialsException("Invalid refresh token");
+                });
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+
+        if(!jwtService.isTokenValid(requestRefreshToken, userPrincipal)) {
+            log.warn("Refresh token is invalid or expired for user @{}", username);
+            throw new BadCredentialsException("Refresh token is invalid or expired for user");
+        }
+
+        Map<String, Object> extraClaims = createExtraClaims(user);
+        String newAccessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
+        String newRefreshToken = jwtService.generateRefreshToken(userPrincipal);
+
+        log.info("Access and Refresh tokens refreshed successfully for user @{}", username);
+        return authMapper.toAuthResponse(newAccessToken, newRefreshToken, username);
     }
 
     private Map<String, Object> createExtraClaims(UserEntity user) {
