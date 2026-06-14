@@ -1,18 +1,21 @@
 package me.romangulevatiy.emerald.service.impl;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.romangulevatiy.emerald.dto.AuthRequest;
 import me.romangulevatiy.emerald.dto.AuthResponse;
 import me.romangulevatiy.emerald.dto.RefreshTokenRequest;
 import me.romangulevatiy.emerald.entity.UserEntity;
+import me.romangulevatiy.emerald.exception.InvalidCredentialsException;
+import me.romangulevatiy.emerald.exception.InvalidRefreshTokenException;
 import me.romangulevatiy.emerald.exception.UsernameAlreadyExistsException;
 import me.romangulevatiy.emerald.mapper.AuthMapper;
 import me.romangulevatiy.emerald.repository.UserRepository;
 import me.romangulevatiy.emerald.security.JwtService;
 import me.romangulevatiy.emerald.security.UserPrincipal;
 import me.romangulevatiy.emerald.service.AuthService;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,13 +67,13 @@ public class AuthServiceImpl implements AuthService {
         UserEntity user = userRepository.findByUsername(requestUsername)
                 .orElseThrow(() -> {
                     log.warn("Username @{} not found", requestUsername);
-                    return new BadCredentialsException("Invalid username or password");
+                    return new InvalidCredentialsException("Invalid username or password");
                 });
         String username = user.getUsername();
 
         if(!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
             log.error("Invalid password for user @{}", username);
-            throw new BadCredentialsException("Invalid username or password");
+            throw new InvalidCredentialsException("Invalid username or password");
         }
 
         UserPrincipal userPrincipal = new UserPrincipal(user);
@@ -92,21 +95,25 @@ public class AuthServiceImpl implements AuthService {
         try {
             username = jwtService.extractUsername(requestRefreshToken);
         }
-        catch(BadCredentialsException e) {
-            log.warn("Failed to extract username from refresh token: {}", e.getMessage());
-            throw new BadCredentialsException("Invalid refresh token");
+        catch(ExpiredJwtException ex) {
+            log.warn("Refresh token has expired: {}", ex.getMessage());
+            throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
+        }
+        catch(JwtException | IllegalArgumentException ex) {
+            log.error("Error parsing refresh token: {}", ex.getMessage());
+            throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
         }
 
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
                     log.warn("User @{} not found for refresh token", username);
-                    return new BadCredentialsException("Invalid refresh token");
+                    return new InvalidRefreshTokenException("Refresh token is invalid or expired");
                 });
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
         if(!jwtService.isTokenValid(requestRefreshToken, userPrincipal)) {
-            log.warn("Refresh token is invalid or expired for user @{}", username);
-            throw new BadCredentialsException("Refresh token is invalid or expired for user");
+            log.warn("Refresh token validation failed for user @{}", username);
+            throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
         }
 
         Map<String, Object> extraClaims = createExtraClaims(user);
