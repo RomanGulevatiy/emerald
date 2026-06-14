@@ -3,7 +3,6 @@ package me.romangulevatiy.emerald.exception;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -33,26 +32,40 @@ public class GlobalExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
+    @ExceptionHandler(InvalidCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleBadCredentialsException(BadCredentialsException ex,HttpServletRequest request) {
+    public ErrorResponse handleInvalidCredentialsException(InvalidCredentialsException ex,
+                                                           HttpServletRequest request) {
         return ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error("Invalid username or password")
-                .message(ex.getMessage())
+                .message("The provided credentials are incorrect")
                 .path(request.getRequestURI())
                 .build();
     }
 
     @ExceptionHandler(JwtException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleJwtException(HttpServletRequest request) {
+    public ErrorResponse handleJwtException(JwtException ex, HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error("JWT Token is not valid")
+                .message("JWT signature does not match or token is invalid")
+                .path(request.getRequestURI())
+                .build();
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleInvalidRefreshTokenException(InvalidRefreshTokenException ex,
+                                                            HttpServletRequest request) {
         return ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error("Invalid or expired token")
-                .message("JWT signature does not match or token is invalid")
+                .message("Refresh token is invalid or expired")
                 .path(request.getRequestURI())
                 .build();
     }
