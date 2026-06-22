@@ -82,4 +82,16 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
     }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
+        return ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Entity not found")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+    }
 }
