@@ -5,7 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 @Builder
 public class ErrorResponse {
 
-    private LocalDateTime timestamp;
+    @Builder.Default
+    private final Instant timestamp = Instant.now();
+
     private int status;
     private String error;
     private String message;
