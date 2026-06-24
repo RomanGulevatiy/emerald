@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -24,7 +23,6 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("; "));
 
         return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error("Validation Failed")
                 .message(message)
@@ -37,7 +35,6 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleInvalidCredentialsException(InvalidCredentialsException ex,
                                                            HttpServletRequest request) {
         return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error("Invalid username or password")
                 .message("The provided credentials are incorrect")
@@ -49,7 +46,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleJwtException(JwtException ex, HttpServletRequest request) {
         return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error("JWT Token is not valid")
                 .message("JWT signature does not match or token is invalid")
@@ -62,7 +58,6 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleInvalidRefreshTokenException(InvalidRefreshTokenException ex,
                                                             HttpServletRequest request) {
         return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error("Invalid or expired token")
                 .message("Refresh token is invalid or expired")
@@ -75,7 +70,6 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex,
                                                               HttpServletRequest request) {
         return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
                 .status(HttpStatus.CONFLICT.value())
                 .error("Username already exists")
                 .message(ex.getMessage())
@@ -87,7 +81,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
         return ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
                 .status(HttpStatus.NOT_FOUND.value())
                 .error("Entity not found")
                 .message(ex.getMessage())
