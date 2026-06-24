@@ -2,20 +2,17 @@ package me.romangulevatiy.emerald.mapper;
 
 import me.romangulevatiy.emerald.dto.PageResponse;
 import me.romangulevatiy.emerald.dto.UserResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Component;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface UserMapper {
 
-    public PageResponse<UserResponse> toPageResponse(Page<UserResponse> page) {
-        return PageResponse.<UserResponse>builder()
-                .content(page.getContent())
-                .pageNumber(page.getNumber())
-                .pageSize(page.getSize())
-                .totalElements(page.getTotalElements())
-                .totalPages(page.getTotalPages())
-                .last(page.isLast())
-                .build();
-    }
+    @Mapping(target = "pageNumber", expression = "java(page.getNumber())")
+    @Mapping(target = "pageSize", expression = "java(page.getSize())")
+    PageResponse<UserResponse> toPageResponse(Page<UserResponse> page);
 }

@@ -4,24 +4,17 @@ import me.romangulevatiy.emerald.dto.AuthRequest;
 import me.romangulevatiy.emerald.dto.AuthResponse;
 import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
 
-@Component
-public class AuthMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE,
+        imports = UserRole.class)
+public interface AuthMapper {
 
-    public AuthResponse toAuthResponse(String accessToken, String refreshToken, String username) {
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .username(username)
-                .build();
-    }
+    AuthResponse toAuthResponse(String accessToken, String refreshToken, String username);
 
-    public UserEntity toUserEntity(AuthRequest authRequest, String encodedPassword) {
-        return UserEntity.builder()
-                .username(authRequest.getUsername())
-                .password(encodedPassword)
-                .role(UserRole.USER)
-                .build();
-    }
+    @Mapping(target = "username", source = "authRequest.username")
+    @Mapping(target = "password", source = "encodedPassword")
+    @Mapping(target = "role", expression = "java(UserRole.USER)")
+    UserEntity toUserEntity(AuthRequest authRequest, String encodedPassword);
 }
