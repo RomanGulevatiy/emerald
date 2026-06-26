@@ -10,6 +10,7 @@ Emerald project is a REST API service based on Spring Boot. The project is devel
 
 1. [Built With](#built-with)
 1. [API Documentation](#api-documentation)
+1. [License](#license)
 
 ---
 
