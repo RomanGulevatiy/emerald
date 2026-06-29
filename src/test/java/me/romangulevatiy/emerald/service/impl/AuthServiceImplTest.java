@@ -1,7 +1,5 @@
 package me.romangulevatiy.emerald.service.impl;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import me.romangulevatiy.emerald.dto.AuthRequest;
 import me.romangulevatiy.emerald.dto.AuthResponse;
 import me.romangulevatiy.emerald.dto.RefreshTokenRequest;
@@ -14,6 +12,7 @@ import me.romangulevatiy.emerald.mapper.AuthMapper;
 import me.romangulevatiy.emerald.repository.UserRepository;
 import me.romangulevatiy.emerald.security.JwtService;
 import me.romangulevatiy.emerald.security.UserPrincipal;
+import me.romangulevatiy.emerald.service.RefreshTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +36,7 @@ class AuthServiceImplTest {
     @Mock private PasswordEncoder passwordEncoder;
     @Mock private AuthMapper authMapper;
     @Mock private JwtService jwtService;
+    @Mock private RefreshTokenService refreshTokenService;
     @InjectMocks private AuthServiceImpl authService;
 
     private AuthRequest authRequest;
@@ -82,7 +82,7 @@ class AuthServiceImplTest {
         when(userRepository.save(userEntity)).thenReturn(savedUser);
 
         when(jwtService.generateAccessToken(anyMap(), any(UserPrincipal.class))).thenReturn(authResponse.getAccessToken());
-        when(jwtService.generateRefreshToken(any(UserPrincipal.class))).thenReturn(authResponse.getRefreshToken());
+        when(refreshTokenService.create(anyString())).thenReturn(authResponse.getRefreshToken());
         when(authMapper.toAuthResponse(authResponse.getAccessToken(), authResponse.getRefreshToken(), savedUser.getUsername()))
                 .thenReturn(authResponse);
 
@@ -113,7 +113,7 @@ class AuthServiceImplTest {
         when(passwordEncoder.matches(authRequest.getPassword(), userEntity.getPassword())).thenReturn(true);
 
         when(jwtService.generateAccessToken(anyMap(), any(UserPrincipal.class))).thenReturn(authResponse.getAccessToken());
-        when(jwtService.generateRefreshToken(any(UserPrincipal.class))).thenReturn(authResponse.getRefreshToken());
+        when(refreshTokenService.create(anyString())).thenReturn(authResponse.getRefreshToken());
         when(authMapper.toAuthResponse(authResponse.getAccessToken(), authResponse.getRefreshToken(), userEntity.getUsername()))
                 .thenReturn(authResponse);
 
@@ -163,22 +163,21 @@ class AuthServiceImplTest {
                 .username(username)
                 .build();
 
-        when(jwtService.extractUsername(oldRefreshToken)).thenReturn(username);
+        when(refreshTokenService.extractUsername(oldRefreshToken)).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(userEntity));
-        when(jwtService.isTokenValid(eq(oldRefreshToken), any(UserPrincipal.class))).thenReturn(true);
         when(jwtService.generateAccessToken(anyMap(), any(UserPrincipal.class))).thenReturn(newAccessToken);
-        when(jwtService.generateRefreshToken(any(UserPrincipal.class))).thenReturn(newRefreshToken);
+        when(refreshTokenService.create(anyString())).thenReturn(newRefreshToken);
         when(authMapper.toAuthResponse(newAccessToken, newRefreshToken, username)).thenReturn(expectedAuthResponse);
 
         AuthResponse result = authService.refresh(refreshTokenRequest);
 
         assertNotNull(result);
         assertEquals(expectedAuthResponse, result);
-        verify(jwtService).extractUsername(oldRefreshToken);
+        verify(refreshTokenService).extractUsername(oldRefreshToken);
         verify(userRepository).findByUsername(username);
-        verify(jwtService).isTokenValid(eq(oldRefreshToken), any(UserPrincipal.class));
         verify(jwtService).generateAccessToken(anyMap(), any(UserPrincipal.class));
-        verify(jwtService).generateRefreshToken(any(UserPrincipal.class));
+        verify(refreshTokenService).delete(oldRefreshToken);
+        verify(refreshTokenService).create(username);
         verify(authMapper).toAuthResponse(newAccessToken, newRefreshToken, username);
     }
 
@@ -188,25 +187,11 @@ class AuthServiceImplTest {
         String oldRefreshToken = "invalid.Refresh.Token";
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(oldRefreshToken);
 
-        when(jwtService.extractUsername(oldRefreshToken))
-                .thenThrow(new SignatureException("Invalid JWT signature"));
+        when(refreshTokenService.extractUsername(oldRefreshToken))
+                .thenThrow(new InvalidRefreshTokenException("Refresh token is invalid or expired"));
 
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh(refreshTokenRequest));
-        verify(jwtService).extractUsername(oldRefreshToken);
-        verifyNoInteractions(userRepository);
-    }
-
-    @DisplayName("refresh should throw InvalidRefreshTokenException when refresh token is expired")
-    @Test
-    void refresh_ShouldThrowException_WhenRefreshTokenIsExpired() {
-        String oldRefreshToken = "expired.Refresh.Token";
-        RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(oldRefreshToken);
-
-        when(jwtService.extractUsername(oldRefreshToken))
-                .thenThrow(new ExpiredJwtException(null, null, "Token expired"));
-
-        assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh(refreshTokenRequest));
-        verify(jwtService).extractUsername(oldRefreshToken);
+        verify(refreshTokenService).extractUsername(oldRefreshToken);
         verifyNoInteractions(userRepository);
     }
 
@@ -217,34 +202,13 @@ class AuthServiceImplTest {
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(oldRefreshToken);
         String username = "NonExistentUser";
 
-        when(jwtService.extractUsername(oldRefreshToken)).thenReturn(username);
+        when(refreshTokenService.extractUsername(oldRefreshToken)).thenReturn(username);
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh(refreshTokenRequest));
-        verify(jwtService).extractUsername(oldRefreshToken);
+        verify(refreshTokenService).extractUsername(oldRefreshToken);
         verify(userRepository).findByUsername(username);
-        verify(jwtService, never()).isTokenValid(anyString(), any(UserPrincipal.class));
         verify(jwtService, never()).generateAccessToken(anyMap(), any(UserPrincipal.class));
-        verify(jwtService, never()).generateRefreshToken(any(UserPrincipal.class));
-    }
-
-    @DisplayName("refresh should throw InvalidRefreshTokenException when refresh token is invalid")
-    @Test
-    void refresh_ShouldThrowException_WhenRefreshTokenIsInvalid() {
-        String oldRefreshToken = "invalid.Refresh.Token";
-        String username = userEntity.getUsername();
-
-        RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(oldRefreshToken);
-
-        when(jwtService.extractUsername(oldRefreshToken)).thenReturn(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(userEntity));
-        when(jwtService.isTokenValid(eq(oldRefreshToken), any(UserPrincipal.class))).thenReturn(false);
-
-        assertThrows(InvalidRefreshTokenException.class, () -> authService.refresh(refreshTokenRequest));
-        verify(jwtService).extractUsername(oldRefreshToken);
-        verify(userRepository).findByUsername(username);
-        verify(jwtService).isTokenValid(eq(oldRefreshToken), any(UserPrincipal.class));
-        verify(jwtService, never()).generateAccessToken(anyMap(), any(UserPrincipal.class));
-        verify(jwtService, never()).generateRefreshToken(any(UserPrincipal.class));
+        verify(refreshTokenService, never()).create(anyString());
     }
 }
