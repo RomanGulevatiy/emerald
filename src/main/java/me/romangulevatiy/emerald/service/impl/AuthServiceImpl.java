@@ -1,7 +1,5 @@
 package me.romangulevatiy.emerald.service.impl;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.romangulevatiy.emerald.dto.AuthRequest;
@@ -16,6 +14,7 @@ import me.romangulevatiy.emerald.repository.UserRepository;
 import me.romangulevatiy.emerald.security.JwtService;
 import me.romangulevatiy.emerald.security.UserPrincipal;
 import me.romangulevatiy.emerald.service.AuthService;
+import me.romangulevatiy.emerald.service.RefreshTokenService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthMapper authMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     @Transactional
     @Override
@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
         Map<String,Object> extraClaims = createExtraClaims(savedUser);
 
         String accessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
-        String refreshToken = jwtService.generateRefreshToken(userPrincipal);
+        String refreshToken = refreshTokenService.create(savedUsername);
 
         return authMapper.toAuthResponse(accessToken, refreshToken, savedUsername);
     }
@@ -80,29 +80,16 @@ public class AuthServiceImpl implements AuthService {
         Map<String, Object> extraClaims = createExtraClaims(user);
 
         String accessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
-        String refreshToken = jwtService.generateRefreshToken(userPrincipal);
+        String refreshToken = refreshTokenService.create(username);
 
         log.info("User @{} logged in successfully", username);
         return authMapper.toAuthResponse(accessToken, refreshToken, username);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
         String requestRefreshToken = refreshTokenRequest.getRefreshToken();
-        String username;
-
-        try {
-            username = jwtService.extractUsername(requestRefreshToken);
-        }
-        catch(ExpiredJwtException ex) {
-            log.warn("Refresh token has expired: {}", ex.getMessage());
-            throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
-        }
-        catch(JwtException | IllegalArgumentException ex) {
-            log.error("Error parsing refresh token: {}", ex.getMessage());
-            throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
-        }
+        String username = refreshTokenService.extractUsername(requestRefreshToken);
 
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> {
@@ -111,14 +98,11 @@ public class AuthServiceImpl implements AuthService {
                 });
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
-        if(!jwtService.isTokenValid(requestRefreshToken, userPrincipal)) {
-            log.warn("Refresh token validation failed for user @{}", username);
-            throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
-        }
-
         Map<String, Object> extraClaims = createExtraClaims(user);
         String newAccessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
-        String newRefreshToken = jwtService.generateRefreshToken(userPrincipal);
+
+        refreshTokenService.delete(requestRefreshToken);
+        String newRefreshToken = refreshTokenService.create(username);
 
         log.info("Access and Refresh tokens refreshed successfully for user @{}", username);
         return authMapper.toAuthResponse(newAccessToken, newRefreshToken, username);
