@@ -1,6 +1,5 @@
 package me.romangulevatiy.emerald.exception;
 
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,17 +37,6 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error("Invalid username or password")
                 .message("The provided credentials are incorrect")
-                .path(request.getRequestURI())
-                .build();
-    }
-
-    @ExceptionHandler(JwtException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ErrorResponse handleJwtException(JwtException ex, HttpServletRequest request) {
-        return ErrorResponse.builder()
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .error("JWT Token is not valid")
-                .message("JWT signature does not match or token is invalid")
                 .path(request.getRequestURI())
                 .build();
     }
