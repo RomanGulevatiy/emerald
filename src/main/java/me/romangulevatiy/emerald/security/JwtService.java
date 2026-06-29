@@ -23,9 +23,6 @@ public class JwtService {
     @Value("${jwt.access-expiration}")
     private long  accessExpiration;
 
-    @Value("${jwt.refresh-expiration}")
-    private long refreshExpiration;
-
     // Key generation and claim extraction methods
 
     private SecretKey getSignInKey() {
@@ -72,17 +69,6 @@ public class JwtService {
     }
 
     /**
-     * Generates a refresh token with optional extra claims.
-     *
-     * @param extraClaims Additional claims to include in the token (can be empty)
-     * @param userDetails The user details to set as the subject of the token
-     * @return A signed JWT refresh token as a String
-     */
-    public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return buildToken(extraClaims, userDetails, refreshExpiration);
-    }
-
-    /**
      * Generates an access token without extra claims.
      *
      * @param userDetails The user details to set as the subject of the token
@@ -90,16 +76,6 @@ public class JwtService {
      */
     public String generateAccessToken(UserDetails userDetails) {
         return buildToken(new HashMap<>(),userDetails, accessExpiration);
-    }
-
-    /**
-     * Generates a refresh token without extra claims.
-     *
-     * @param userDetails The user details to set as the subject of the token
-     * @return A signed JWT refresh token as a String
-     */
-    public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(), userDetails, refreshExpiration);
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
