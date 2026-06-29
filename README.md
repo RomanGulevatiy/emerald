@@ -27,6 +27,7 @@ Emerald project is a REST API service based on Spring Boot. The project is devel
 - Lombok
 - Springdoc OpenAPI
 - PostgreSQL
+- Redis
 
 ---
 
