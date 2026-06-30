@@ -31,7 +31,7 @@ public class AdminController {
 
     @Operation(summary = "Update user role", description = "Updates the role of a specified user")
     @PatchMapping("/users/{username}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateUserRole(@PathVariable String username, @RequestParam UserRole role) {
         adminService.updateUserRole(username, role);
     }
