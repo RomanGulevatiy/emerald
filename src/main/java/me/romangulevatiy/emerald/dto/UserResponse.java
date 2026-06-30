@@ -1,9 +1,7 @@
 package me.romangulevatiy.emerald.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 
 import java.time.Instant;
@@ -12,10 +10,11 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
 
-    private String username;
-    private UserRole role;
-    private Instant createdAt;
-    private Instant updatedAt;
+    String username;
+    UserRole role;
+    Instant createdAt;
+    Instant updatedAt;
 }
