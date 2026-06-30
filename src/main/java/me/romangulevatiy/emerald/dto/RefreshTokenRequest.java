@@ -1,17 +1,16 @@
 package me.romangulevatiy.emerald.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class RefreshTokenRequest {
 
     @NotBlank(message = "Refresh token is required")
-    private String refreshToken;
+    String refreshToken;
 }
