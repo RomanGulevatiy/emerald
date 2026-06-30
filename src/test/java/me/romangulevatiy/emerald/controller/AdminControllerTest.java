@@ -102,7 +102,7 @@ class AdminControllerTest {
         mockMvc.perform(patch("/admin/users/{username}", username)
                         .param("role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @DisplayName("PATCH /api/admin/users/{username} should return 403 Forbidden when user does not have permission")
