@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -51,7 +50,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("User @{} registered successfully", savedUsername);
 
         UserPrincipal userPrincipal = new UserPrincipal(savedUser);
-        Map<String,Object> extraClaims = createExtraClaims(savedUser);
+        Map<String,Object> extraClaims = jwtService.createExtraClaims(savedUser);
 
         String accessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
         String refreshToken = refreshTokenService.create(savedUsername);
@@ -77,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         UserPrincipal userPrincipal = new UserPrincipal(user);
-        Map<String, Object> extraClaims = createExtraClaims(user);
+        Map<String, Object> extraClaims = jwtService.createExtraClaims(user);
 
         String accessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
         String refreshToken = refreshTokenService.create(username);
@@ -98,7 +97,7 @@ public class AuthServiceImpl implements AuthService {
                 });
         UserPrincipal userPrincipal = new UserPrincipal(user);
 
-        Map<String, Object> extraClaims = createExtraClaims(user);
+        Map<String, Object> extraClaims = jwtService.createExtraClaims(user);
         String newAccessToken = jwtService.generateAccessToken(extraClaims, userPrincipal);
 
         refreshTokenService.delete(requestRefreshToken);
@@ -106,12 +105,5 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Access and Refresh tokens refreshed successfully for user @{}", username);
         return authMapper.toAuthResponse(newAccessToken, newRefreshToken, username);
-    }
-
-    private Map<String, Object> createExtraClaims(UserEntity user) {
-        Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("userId", user.getId());
-        extraClaims.put("role", user.getRole().name());
-        return extraClaims;
     }
 }
