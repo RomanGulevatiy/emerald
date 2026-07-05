@@ -86,6 +86,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void logout(RefreshTokenRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+
+        /*
+         * Validate the refresh token and extract the username.
+         * If the token is invalid or expired, an InvalidRefreshTokenException will be thrown.
+         */
+        String username = refreshTokenService.extractUsername(refreshToken);
+
+        refreshTokenService.delete(refreshToken);
+        log.info("User @{} logged out successfully", username);
+    }
+
+    @Override
     public AuthResponse refresh(RefreshTokenRequest refreshTokenRequest) {
         String requestRefreshToken = refreshTokenRequest.getRefreshToken();
         String username = refreshTokenService.extractUsername(requestRefreshToken);
