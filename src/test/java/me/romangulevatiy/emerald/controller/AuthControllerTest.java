@@ -19,8 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -129,6 +128,38 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.error").value("Invalid username or password"))
                 .andExpect(jsonPath("$.message").value("The provided credentials are incorrect"))
                 .andExpect(jsonPath("$.path").value("/auth/login"));
+    }
+
+    @DisplayName("POST /api/auth/logout should return 204 No Content when request is valid")
+    @Test
+    void logout_ShouldReturn204_WhenRequestIsValid() throws Exception {
+        RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest("RefreshToken");
+        String jsonRequest = objectMapper.writeValueAsString(refreshTokenRequest);
+
+        mockMvc.perform(post("/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isNoContent());
+    }
+
+    @DisplayName("POST /api/auth/logout should return 401 Unauthorized when request is invalid")
+    @Test
+    void logout_ShouldReturn401_WhenRequestIsInvalid() throws Exception {
+        RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest("InvalidRefreshToken");
+        String jsonRequest = objectMapper.writeValueAsString(refreshTokenRequest);
+
+        doThrow(new InvalidRefreshTokenException("Refresh token is invalid or expired"))
+                .when(authService).logout(any(RefreshTokenRequest.class));
+
+        mockMvc.perform(post("/auth/logout")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequest))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(HttpStatus.UNAUTHORIZED.value()))
+                .andExpect(jsonPath("$.error").value("Invalid or expired token"))
+                .andExpect(jsonPath("$.message").value("Refresh token is invalid or expired"))
+                .andExpect(jsonPath("$.path").value("/auth/logout"));
     }
 
     @DisplayName("POST /api/auth/refresh should return 200 OK with new tokens and username")
