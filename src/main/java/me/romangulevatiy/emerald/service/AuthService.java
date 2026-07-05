@@ -10,5 +10,7 @@ public interface AuthService {
 
     AuthResponse login(AuthRequest authRequest);
 
+    void logout(RefreshTokenRequest refreshTokenRequest);
+
     AuthResponse refresh(RefreshTokenRequest refreshTokenRequest);
 }
