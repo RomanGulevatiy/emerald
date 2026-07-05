@@ -145,6 +145,35 @@ class AuthServiceImplTest {
         verify(userRepository).findByUsername(authRequest.getUsername());
     }
 
+    @DisplayName("logout should delete refresh token when request is valid")
+    @Test
+    void logout_ShouldDeleteRefreshToken_WhenRequestIsValid() {
+        String refreshToken = "RefreshToken";
+        String username = "SuperUser";
+        RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(refreshToken);
+
+        when(refreshTokenService.extractUsername(refreshToken)).thenReturn(username);
+
+        authService.logout(refreshTokenRequest);
+
+        verify(refreshTokenService).extractUsername(refreshToken);
+        verify(refreshTokenService).delete(refreshToken);
+    }
+
+    @DisplayName("logout should throw InvalidRefreshTokenException when request is invalid")
+    @Test
+    void logout_ShouldThrowInvalidRefreshTokenException_WhenRequestIsInvalid() {
+        String invalidRefreshToken = "InvalidRefreshToken";
+        RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(invalidRefreshToken);
+
+        when(refreshTokenService.extractUsername(invalidRefreshToken))
+                .thenThrow(new InvalidRefreshTokenException("Refresh token is invalid or expired"));
+
+        assertThrows(InvalidRefreshTokenException.class, () -> authService.logout(refreshTokenRequest));
+        verify(refreshTokenService).extractUsername(invalidRefreshToken);
+        verify(refreshTokenService, never()).delete(anyString());
+    }
+
     @DisplayName("refresh should regenerate and return new tokens when refresh token is valid")
     @Test
     void refresh_ShouldRegenerateTokens_WhenRefreshTokenIsValid() {
