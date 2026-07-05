@@ -140,6 +140,8 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(jsonRequest))
                 .andExpect(status().isNoContent());
+
+        verify(authService).logout(refreshTokenRequest);
     }
 
     @DisplayName("POST /api/auth/logout should return 401 Unauthorized when request is invalid")
