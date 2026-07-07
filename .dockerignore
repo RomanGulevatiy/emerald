@@ -1,0 +1,22 @@
+# Git
+.git/
+.github/
+.gitattributes
+.gitignore
+
+# IntelliJ project files
+.idea
+*.iml
+target/
+out/
+gen/
+.DS_Store
+
+# Docker
+.env
+.env.template
+Dockerfile
+docker-compose.yml
+
+# Documentation
+*.md
