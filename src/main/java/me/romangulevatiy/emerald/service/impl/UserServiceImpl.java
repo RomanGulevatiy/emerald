@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         if(!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), user.getPassword())) {
-            log.error("Passwords do not match");
+            log.warn("Passwords do not match");
             throw new InvalidCredentialsException("Current password is incorrect");
         }
         String encodedNewPassword = passwordEncoder.encode(updatePasswordRequest.getNewPassword());

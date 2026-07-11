@@ -38,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
         String requestUsername = authRequest.getUsername();
 
         if(userRepository.existsByUsername(requestUsername)) {
-            log.error("Username @{} already exists", requestUsername);
+            log.warn("Username @{} already exists", requestUsername);
             throw new UsernameAlreadyExistsException("Username already exists");
         }
 
@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
         String username = user.getUsername();
 
         if(!passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
-            log.error("Invalid password for user @{}", username);
+            log.warn("Invalid password for user @{}", username);
             throw new InvalidCredentialsException("Invalid username or password");
         }
 
