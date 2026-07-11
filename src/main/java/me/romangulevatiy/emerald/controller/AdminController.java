@@ -24,8 +24,14 @@ public class AdminController {
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     public PageResponse<UserResponse> getUsers(
-            @RequestParam(name = "page", defaultValue = "0") @Min(0) int page,
-            @RequestParam(name = "size", defaultValue = "16") @Min(1) @Max(64) int size) {
+            @RequestParam(name = "page", defaultValue = "0")
+            @Min(value = 0, message = "Page number must be {value} or greater")
+            int page,
+
+            @RequestParam(name = "size", defaultValue = "16")
+            @Min(value = 1, message = "Size must be at least {value}")
+            @Max(value = 64, message = "Size must be at most {value}")
+            int size) {
         return adminService.getUsers(page, size);
     }
 
