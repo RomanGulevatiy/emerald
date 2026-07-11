@@ -76,7 +76,7 @@ class AdminControllerTest {
     @Test
     void getUsers_ShouldReturn400_WhenRequestIsInvalid() throws Exception {
         mockMvc.perform(get("/admin/users")
-                        .param("page", "0")
+                        .param("page", "-1")
                         .param("size", "67")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
