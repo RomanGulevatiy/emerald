@@ -1,36 +1,41 @@
 package me.romangulevatiy.emerald.config;
 
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-class SwaggerConfig {
-
-    @Value("${spring.application.name}")
-    private String appName;
-
-    @Value("${spring.application.version}")
-    private String appVersion;
-
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI().info(new Info()
-                .title(appName)
-                .version(appVersion)
-                .description(String.format("API documentation for %1$s application", appName))
-                .contact(new Contact()
-                        .name("Roman Gulevatiy")
-                        .url("https://github.com/RomanGulevatiy")
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Emerald API",
+                version = "1.0",
+                summary = "API documentation for Emerald application",
+                description = "Emerald is a RESTful web service based on Spring Boot." +
+                        " The project is developed as a learning initiative to improve architecture skills" +
+                        " and use best practices in backend development.",
+                contact = @Contact(
+                        name = "Roman Gulevatiy",
+                        url = "https://github.com/RomanGulevatiy"
+                ),
+                license = @License(
+                        name = "MIT License",
+                        url = "https://github.com/RomanGulevatiy/emerald/blob/main/LICENSE"
                 )
-                .license(new License()
-                        .name("MIT License")
-                        .url("https://opensource.org/licenses/MIT")
-                )
-        );
-    }
-}
+        ),
+        security = {@SecurityRequirement(name = "bearerToken")}
+)
+@SecuritySchemes({
+        @SecurityScheme(
+                name = "bearerToken",
+                type = SecuritySchemeType.HTTP,
+                scheme = "bearer",
+                bearerFormat = "JWT"
+        )
+})
+class SwaggerConfig {}
