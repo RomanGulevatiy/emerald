@@ -8,10 +8,15 @@ import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
+        servers = @Server(
+                url = "http://localhost:8080",
+                description = "Local server"
+        ),
         info = @Info(
                 title = "Emerald API",
                 version = "1.0",
@@ -38,4 +43,5 @@ import org.springframework.context.annotation.Configuration;
                 bearerFormat = "JWT"
         )
 })
-class SwaggerConfig {}
+class SwaggerConfig {
+}
