@@ -19,7 +19,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "Update password")
+    @Operation(summary = "Update password", description = "Updates the password of the authenticated user. Requires the current password for verification.")
     @PatchMapping("/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updatePassword(@AuthenticationPrincipal UserPrincipal principal,
