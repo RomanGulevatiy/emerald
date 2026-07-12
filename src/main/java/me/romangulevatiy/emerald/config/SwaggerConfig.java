@@ -19,7 +19,7 @@ import org.springframework.context.annotation.Configuration;
         ),
         info = @Info(
                 title = "Emerald API",
-                version = "1.0",
+                version = "1.0.0",
                 summary = "API documentation for Emerald application",
                 description = "Emerald is a RESTful web service based on Spring Boot." +
                         " The project is developed as a learning initiative to improve architecture skills" +
