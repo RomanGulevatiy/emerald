@@ -43,5 +43,5 @@ import org.springframework.context.annotation.Configuration;
                 bearerFormat = "JWT"
         )
 })
-class SwaggerConfig {
+class OpenApiConfig {
 }
