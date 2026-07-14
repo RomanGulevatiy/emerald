@@ -150,11 +150,12 @@ class AuthServiceImplTest {
     void logout_ShouldDeleteRefreshToken_WhenRequestIsValid() {
         String refreshToken = "RefreshToken";
         String username = "SuperUser";
+        String authHeader = "Bearer AccessToken";
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(refreshToken);
 
         when(refreshTokenService.extractUsername(refreshToken)).thenReturn(username);
 
-        authService.logout(refreshTokenRequest);
+        authService.logout(authHeader, refreshTokenRequest);
 
         verify(refreshTokenService).extractUsername(refreshToken);
         verify(refreshTokenService).delete(refreshToken);
@@ -164,12 +165,13 @@ class AuthServiceImplTest {
     @Test
     void logout_ShouldThrowInvalidRefreshTokenException_WhenRequestIsInvalid() {
         String invalidRefreshToken = "InvalidRefreshToken";
+        String authHeader = "Bearer AccessToken";
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest(invalidRefreshToken);
 
         when(refreshTokenService.extractUsername(invalidRefreshToken))
                 .thenThrow(new InvalidRefreshTokenException("Refresh token is invalid or expired"));
 
-        assertThrows(InvalidRefreshTokenException.class, () -> authService.logout(refreshTokenRequest));
+        assertThrows(InvalidRefreshTokenException.class, () -> authService.logout(authHeader, refreshTokenRequest));
         verify(refreshTokenService).extractUsername(invalidRefreshToken);
         verify(refreshTokenService, never()).delete(anyString());
     }
