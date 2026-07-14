@@ -8,6 +8,7 @@ import me.romangulevatiy.emerald.exception.InvalidCredentialsException;
 import me.romangulevatiy.emerald.exception.InvalidRefreshTokenException;
 import me.romangulevatiy.emerald.security.*;
 import me.romangulevatiy.emerald.service.AuthService;
+import me.romangulevatiy.emerald.service.TokenBlacklistService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ class AuthControllerTest {
 
     @MockitoBean private AuthService authService;
     @MockitoBean private JwtService jwtService;
+    @MockitoBean private TokenBlacklistService tokenBlacklistService;
     @MockitoBean private UserPrincipalService userPrincipalService;
 
     @DisplayName("POST /api/auth/register should return 201 Created with tokens and username")
@@ -134,27 +136,31 @@ class AuthControllerTest {
     @Test
     void logout_ShouldReturn204_WhenRequestIsValid() throws Exception {
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest("RefreshToken");
+        String authHeader = "Bearer AccessToken";
         String jsonRequest = objectMapper.writeValueAsString(refreshTokenRequest);
 
         mockMvc.perform(post("/auth/logout")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", authHeader)
                         .content(jsonRequest))
                 .andExpect(status().isNoContent());
 
-        verify(authService).logout(refreshTokenRequest);
+        verify(authService).logout(authHeader, refreshTokenRequest);
     }
 
     @DisplayName("POST /api/auth/logout should return 401 Unauthorized when request is invalid")
     @Test
     void logout_ShouldReturn401_WhenRequestIsInvalid() throws Exception {
         RefreshTokenRequest refreshTokenRequest = new RefreshTokenRequest("InvalidRefreshToken");
+        String authHeader = "Bearer AccessToken";
         String jsonRequest = objectMapper.writeValueAsString(refreshTokenRequest);
 
         doThrow(new InvalidRefreshTokenException("Refresh token is invalid or expired"))
-                .when(authService).logout(any(RefreshTokenRequest.class));
+                .when(authService).logout(any(String.class), any(RefreshTokenRequest.class));
 
         mockMvc.perform(post("/auth/logout")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", authHeader)
                         .content(jsonRequest))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.timestamp").exists())
