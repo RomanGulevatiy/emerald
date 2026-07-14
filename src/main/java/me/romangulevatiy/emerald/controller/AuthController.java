@@ -36,8 +36,9 @@ class AuthController {
     @Operation(summary = "Logout a user", description = "Logs out a user by invalidating the provided refresh token")
     @PostMapping("/logout")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
-        authService.logout(refreshTokenRequest);
+    public void logout(@RequestHeader("Authorization") String authHeader,
+                       @RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
+        authService.logout(authHeader, refreshTokenRequest);
     }
 
     @Operation(summary = "Refresh access token", description = "Issues a new access token using a valid refresh token")
