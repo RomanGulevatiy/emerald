@@ -6,6 +6,7 @@ import me.romangulevatiy.emerald.entity.enums.UserRole;
 import me.romangulevatiy.emerald.exception.EntityNotFoundException;
 import me.romangulevatiy.emerald.security.*;
 import me.romangulevatiy.emerald.service.AdminService;
+import me.romangulevatiy.emerald.service.TokenBlacklistService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ class AdminControllerTest {
 
     @MockitoBean private AdminService adminService;
     @MockitoBean private JwtService jwtService;
+    @MockitoBean private TokenBlacklistService tokenBlacklistService;
     @MockitoBean private UserPrincipalService userPrincipalService;
 
     @DisplayName("GET /api/admin/users should return 200 OK when request is valid")
