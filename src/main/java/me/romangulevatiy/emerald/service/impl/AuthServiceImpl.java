@@ -15,10 +15,12 @@ import me.romangulevatiy.emerald.security.JwtService;
 import me.romangulevatiy.emerald.security.UserPrincipal;
 import me.romangulevatiy.emerald.service.AuthService;
 import me.romangulevatiy.emerald.service.RefreshTokenService;
+import me.romangulevatiy.emerald.service.TokenBlacklistService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.Map;
 
 @Service
@@ -31,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Transactional
     @Override
@@ -86,15 +89,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(RefreshTokenRequest refreshTokenRequest) {
+    public void logout(String authHeader, RefreshTokenRequest refreshTokenRequest) {
+        String accessToken = authHeader.replace("Bearer ", "");
         String refreshToken = refreshTokenRequest.getRefreshToken();
-
-        /*
-         * Validate the refresh token and extract the username.
-         * If the token is invalid or expired, an InvalidRefreshTokenException will be thrown.
-         */
         String username = refreshTokenService.extractUsername(refreshToken);
 
+        revokeAccessToken(accessToken);
         refreshTokenService.delete(refreshToken);
         log.info("User @{} logged out successfully", username);
     }
@@ -119,5 +119,16 @@ public class AuthServiceImpl implements AuthService {
 
         log.info("Access and Refresh tokens refreshed successfully for user @{}", username);
         return authMapper.toAuthResponse(newAccessToken, newRefreshToken, username);
+    }
+
+    private void revokeAccessToken(String accessToken) {
+        try {
+            String jti = jwtService.extractJti(accessToken);
+            Date expiration = jwtService.extractExpiration(accessToken);
+            tokenBlacklistService.revoke(jti, expiration);
+        }
+        catch(Exception ex) {
+            log.warn("Could not revoke access token during logout: {}", ex.getMessage());
+        }
     }
 }
