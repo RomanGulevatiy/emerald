@@ -1,6 +1,7 @@
 package me.romangulevatiy.emerald.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import me.romangulevatiy.emerald.exception.InvalidRefreshTokenException;
 import me.romangulevatiy.emerald.service.RefreshTokenService;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Value("${jwt.refresh-expiration}")
@@ -32,6 +34,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         String key = buildKey(rawToken);
 
         redisTemplate.opsForValue().set(key, username, refreshExpiration, TimeUnit.MILLISECONDS);
+        log.info("Refresh token created for user: {}", username);
 
         return rawToken;
     }
@@ -42,8 +45,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         String username = redisTemplate.opsForValue().get(key);
 
         if(username == null) {
+            log.warn("Refresh token is invalid or expired");
             throw new InvalidRefreshTokenException("Refresh token is invalid or expired");
         }
+        log.info("Extracted username {} from refresh token", username);
         return username;
     }
 
