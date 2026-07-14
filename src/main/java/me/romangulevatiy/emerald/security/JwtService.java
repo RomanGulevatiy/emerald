@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Service
@@ -38,6 +39,16 @@ public class JwtService {
         return extraClaims;
     }
 
+    /**
+     * Extracts the JTI (JWT ID) from the given token.
+     *
+     * @param token The JWT token from which to extract the JTI
+     * @return The JTI as a String
+     */
+    public String extractJti(String token) {
+        return extractClaim(token, Claims::getId);
+    }
+
     public String extractUserRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }
@@ -48,6 +59,10 @@ public class JwtService {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -88,6 +103,7 @@ public class JwtService {
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -105,9 +121,5 @@ public class JwtService {
 
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
     }
 }
