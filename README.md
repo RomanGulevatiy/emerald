@@ -17,13 +17,13 @@ Emerald project is a REST API service based on Spring Boot. The project is devel
 
 ## Built With
 
-| Core          | Modules         | Security        | Database   | Caching | Documentation     | Containerization |
-|---------------|-----------------|-----------------|------------|---------|-------------------|------------------|
-| Java 21       | Spring MVC      | Spring Security | PostgreSQL | Redis   | Springdoc OpenAPI | Docker           |
-| Spring Boot 3 | Spring Data JPA | JWT             | Liquibase  |         |                   | Docker Compose   |
-|               | Validation      |                 |            |         |                   |                  |
-|               | MapStruct       |                 |            |         |                   |                  |
-|               | Lombok          |                 |            |         |                   |                  |
+- **Core:** Java 21, Spring Boot 3
+- **Modules:** Spring MVC, Spring Data JPA, Validation, MapStruct, Lombok
+- **Security:** Spring Security, JWT
+- **Database:** PostgreSQL, Liquibase (Migrations)
+- **Caching:** Redis
+- **Documentation:** Springdoc OpenAPI
+- **Containerization:** Docker & Docker Compose
 
 ---
 
