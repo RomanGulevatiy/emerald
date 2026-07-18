@@ -1,6 +1,6 @@
 package me.romangulevatiy.emerald.service;
 
-import me.romangulevatiy.emerald.dto.UpdatePasswordRequest;
+import me.romangulevatiy.emerald.dto.request.UpdatePasswordRequest;
 
 public interface UserService {
 

@@ -1,7 +1,7 @@
-package me.romangulevatiy.emerald.mapper;
+package me.romangulevatiy.emerald.dto.mapper;
 
-import me.romangulevatiy.emerald.dto.PageResponse;
-import me.romangulevatiy.emerald.dto.UserResponse;
+import me.romangulevatiy.emerald.dto.response.PageResponse;
+import me.romangulevatiy.emerald.dto.response.UserResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

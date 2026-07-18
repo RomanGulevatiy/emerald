@@ -1,14 +1,14 @@
 package me.romangulevatiy.emerald.service.impl;
 
-import me.romangulevatiy.emerald.dto.AuthRequest;
-import me.romangulevatiy.emerald.dto.AuthResponse;
-import me.romangulevatiy.emerald.dto.RefreshTokenRequest;
+import me.romangulevatiy.emerald.dto.request.AuthRequest;
+import me.romangulevatiy.emerald.dto.response.AuthResponse;
+import me.romangulevatiy.emerald.dto.request.RefreshTokenRequest;
 import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 import me.romangulevatiy.emerald.exception.InvalidCredentialsException;
 import me.romangulevatiy.emerald.exception.InvalidRefreshTokenException;
 import me.romangulevatiy.emerald.exception.UsernameAlreadyExistsException;
-import me.romangulevatiy.emerald.mapper.AuthMapper;
+import me.romangulevatiy.emerald.dto.mapper.AuthMapper;
 import me.romangulevatiy.emerald.repository.UserRepository;
 import me.romangulevatiy.emerald.security.JwtService;
 import me.romangulevatiy.emerald.security.UserPrincipal;

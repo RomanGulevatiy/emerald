@@ -1,9 +1,9 @@
 package me.romangulevatiy.emerald.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.romangulevatiy.emerald.dto.AuthRequest;
-import me.romangulevatiy.emerald.dto.AuthResponse;
-import me.romangulevatiy.emerald.dto.RefreshTokenRequest;
+import me.romangulevatiy.emerald.dto.request.AuthRequest;
+import me.romangulevatiy.emerald.dto.response.AuthResponse;
+import me.romangulevatiy.emerald.dto.request.RefreshTokenRequest;
 import me.romangulevatiy.emerald.exception.InvalidCredentialsException;
 import me.romangulevatiy.emerald.exception.InvalidRefreshTokenException;
 import me.romangulevatiy.emerald.security.*;

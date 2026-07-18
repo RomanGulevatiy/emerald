@@ -1,7 +1,7 @@
 package me.romangulevatiy.emerald.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import me.romangulevatiy.emerald.dto.UpdatePasswordRequest;
+import me.romangulevatiy.emerald.dto.request.UpdatePasswordRequest;
 import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 import me.romangulevatiy.emerald.exception.EntityNotFoundException;

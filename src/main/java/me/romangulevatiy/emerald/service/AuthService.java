@@ -1,8 +1,8 @@
 package me.romangulevatiy.emerald.service;
 
-import me.romangulevatiy.emerald.dto.AuthRequest;
-import me.romangulevatiy.emerald.dto.AuthResponse;
-import me.romangulevatiy.emerald.dto.RefreshTokenRequest;
+import me.romangulevatiy.emerald.dto.request.AuthRequest;
+import me.romangulevatiy.emerald.dto.response.AuthResponse;
+import me.romangulevatiy.emerald.dto.request.RefreshTokenRequest;
 
 public interface AuthService {
 

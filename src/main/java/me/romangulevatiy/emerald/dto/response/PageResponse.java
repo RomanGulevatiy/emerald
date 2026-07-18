@@ -1,4 +1,4 @@
-package me.romangulevatiy.emerald.dto;
+package me.romangulevatiy.emerald.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

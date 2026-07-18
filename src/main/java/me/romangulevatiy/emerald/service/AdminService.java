@@ -1,7 +1,7 @@
 package me.romangulevatiy.emerald.service;
 
-import me.romangulevatiy.emerald.dto.PageResponse;
-import me.romangulevatiy.emerald.dto.UserResponse;
+import me.romangulevatiy.emerald.dto.response.PageResponse;
+import me.romangulevatiy.emerald.dto.response.UserResponse;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 
 public interface AdminService {

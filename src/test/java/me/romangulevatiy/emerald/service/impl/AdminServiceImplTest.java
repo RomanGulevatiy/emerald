@@ -1,11 +1,11 @@
 package me.romangulevatiy.emerald.service.impl;
 
-import me.romangulevatiy.emerald.dto.PageResponse;
-import me.romangulevatiy.emerald.dto.UserResponse;
+import me.romangulevatiy.emerald.dto.response.PageResponse;
+import me.romangulevatiy.emerald.dto.response.UserResponse;
 import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 import me.romangulevatiy.emerald.exception.EntityNotFoundException;
-import me.romangulevatiy.emerald.mapper.UserMapper;
+import me.romangulevatiy.emerald.dto.mapper.UserMapper;
 import me.romangulevatiy.emerald.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

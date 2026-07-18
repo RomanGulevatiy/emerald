@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import me.romangulevatiy.emerald.dto.UpdatePasswordRequest;
+import me.romangulevatiy.emerald.dto.request.UpdatePasswordRequest;
 import me.romangulevatiy.emerald.security.UserPrincipal;
 import me.romangulevatiy.emerald.service.UserService;
 import org.springframework.http.HttpStatus;

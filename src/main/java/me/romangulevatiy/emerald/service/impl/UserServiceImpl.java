@@ -2,7 +2,7 @@ package me.romangulevatiy.emerald.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.romangulevatiy.emerald.dto.UpdatePasswordRequest;
+import me.romangulevatiy.emerald.dto.request.UpdatePasswordRequest;
 import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.exception.EntityNotFoundException;
 import me.romangulevatiy.emerald.exception.InvalidCredentialsException;

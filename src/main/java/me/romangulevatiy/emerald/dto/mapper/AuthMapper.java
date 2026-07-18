@@ -1,7 +1,7 @@
-package me.romangulevatiy.emerald.mapper;
+package me.romangulevatiy.emerald.dto.mapper;
 
-import me.romangulevatiy.emerald.dto.AuthRequest;
-import me.romangulevatiy.emerald.dto.AuthResponse;
+import me.romangulevatiy.emerald.dto.request.AuthRequest;
+import me.romangulevatiy.emerald.dto.response.AuthResponse;
 import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 import org.mapstruct.*;

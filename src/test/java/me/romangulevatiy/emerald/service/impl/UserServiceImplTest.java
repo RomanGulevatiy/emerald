@@ -1,6 +1,6 @@
 package me.romangulevatiy.emerald.service.impl;
 
-import me.romangulevatiy.emerald.dto.UpdatePasswordRequest;
+import me.romangulevatiy.emerald.dto.request.UpdatePasswordRequest;
 import me.romangulevatiy.emerald.entity.UserEntity;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 import me.romangulevatiy.emerald.exception.EntityNotFoundException;

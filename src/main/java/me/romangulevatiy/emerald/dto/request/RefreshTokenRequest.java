@@ -1,4 +1,4 @@
-package me.romangulevatiy.emerald.dto;
+package me.romangulevatiy.emerald.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;

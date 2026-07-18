@@ -1,7 +1,7 @@
 package me.romangulevatiy.emerald.controller;
 
-import me.romangulevatiy.emerald.dto.PageResponse;
-import me.romangulevatiy.emerald.dto.UserResponse;
+import me.romangulevatiy.emerald.dto.response.PageResponse;
+import me.romangulevatiy.emerald.dto.response.UserResponse;
 import me.romangulevatiy.emerald.entity.enums.UserRole;
 import me.romangulevatiy.emerald.exception.EntityNotFoundException;
 import me.romangulevatiy.emerald.security.*;
