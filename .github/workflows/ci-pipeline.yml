@@ -1,4 +1,4 @@
-name: Java CI Pipeline with Maven
+name: CI Pipeline
 
 on:
   pull_request:
@@ -32,5 +32,5 @@ jobs:
       - name: Grant execute permission for Maven Wrapper
         run: chmod +x ./mvnw
 
-      - name: Compile and test with Maven
+      - name: Compile and Test with Maven
         run: ./mvnw --batch-mode --no-transfer-progress clean verify
