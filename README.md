@@ -1,7 +1,7 @@
 # Emerald Project
 
-[![Issues][issues-shield]][issues-url]
 [![CI Pipeline][ci-shield]][ci-url]
+[![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 
 Emerald project is a REST API service based on Spring Boot. The project is developed as a learning initiative to improve architecture skills and use best practices in backend development.
@@ -71,9 +71,9 @@ The API documentation for this application is available at http://localhost:8080
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
-[issues-shield]: https://img.shields.io/github/issues/RomanGulevatiy/emerald
+[issues-shield]: https://img.shields.io/github/issues/RomanGulevatiy/emerald?label=Issues
 [issues-url]: https://github.com/RomanGulevatiy/emerald/issues
-[license-shield]: https://img.shields.io/github/license/RomanGulevatiy/emerald
+[license-shield]: https://img.shields.io/github/license/RomanGulevatiy/emerald?label=License
 [license-url]: https://github.com/RomanGulevatiy/emerald/blob/master/LICENSE
-[ci-shield]: https://img.shields.io/github/actions/workflow/status/RomanGulevatiy/emerald/ci-pipeline.yml
+[ci-shield]: https://github.com/RomanGulevatiy/emerald/actions/workflows/ci-pipeline.yml/badge.svg
 [ci-url]: https://github.com/RomanGulevatiy/emerald/actions/workflows/ci-pipeline.yml
