@@ -33,7 +33,6 @@ services:
       retries: 3
 
   app:
-    image: app
     container_name: app
     restart: unless-stopped
     build:
